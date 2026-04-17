@@ -78,7 +78,7 @@ export default async function BookingSuccessPage({ searchParams }: PageProps) {
             </div>
             <CardTitle className="text-2xl">Turno Confirmado</CardTitle>
             <CardDescription>
-              Tu pago ha sido procesado exitosamente
+              Tu seña ha sido procesada exitosamente. Recuerda que el saldo restante se abona en el consultorio.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

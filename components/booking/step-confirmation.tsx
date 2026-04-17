@@ -155,17 +155,22 @@ export function StepConfirmation({
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-lg bg-muted p-4">
-        <div>
-          <div className="text-sm text-muted-foreground">Total a pagar</div>
-          <div className="text-2xl font-bold">
-            ${(fee / 100).toLocaleString('es-AR')}
+      <div className="rounded-lg bg-muted p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm text-muted-foreground">Seña a pagar</div>
+            <div className="text-2xl font-bold">
+              ${(fee / 100).toLocaleString('es-AR')}
+            </div>
           </div>
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <CreditCard className="h-3 w-3" />
+            Mercado Pago
+          </Badge>
         </div>
-        <Badge variant="secondary" className="flex items-center gap-1">
-          <CreditCard className="h-3 w-3" />
-          Mercado Pago
-        </Badge>
+        <p className="mt-2 text-xs text-muted-foreground">
+          La seña corresponde al 30% del valor total de la consulta y se descuenta del monto final.
+        </p>
       </div>
 
       {error && (

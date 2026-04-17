@@ -32,13 +32,26 @@ export function AvailabilityForm({ availabilityByDay }: AvailabilityFormProps) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    await supabase.from('availability').insert({
-      doctor_id: user?.id,
+    if (!user) {
+      console.error('[v0] No user found')
+      setIsLoading(false)
+      return
+    }
+
+    const { data, error } = await supabase.from('availability').insert({
+      doctor_id: user.id,
       day_of_week: dayIndex,
-      start_time: newSlot.startTime,
-      end_time: newSlot.endTime,
+      start_time: newSlot.startTime + ':00',
+      end_time: newSlot.endTime + ':00',
       is_active: true,
-    })
+    }).select()
+
+    if (error) {
+      console.error('[v0] Error adding slot:', error)
+      alert('Error al agregar horario: ' + error.message)
+    } else {
+      console.log('[v0] Slot added successfully:', data)
+    }
 
     router.refresh()
     setIsLoading(false)

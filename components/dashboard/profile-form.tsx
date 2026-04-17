@@ -149,7 +149,8 @@ export function ProfileForm({ doctor }: ProfileFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <Label htmlFor="consultation_fee">Precio de Consulta (ARS)</Label>
+          <Label htmlFor="consultation_fee">Seña de la Sesion (ARS)</Label>
+          <p className="text-xs text-muted-foreground">La seña corresponde al 30% del valor total de la consulta</p>
           <Input
             id="consultation_fee"
             type="number"
