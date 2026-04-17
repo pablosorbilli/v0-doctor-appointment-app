@@ -3,7 +3,14 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { AlertCircle, Stethoscope } from 'lucide-react'
 
-export default function AuthErrorPage() {
+interface AuthErrorPageProps {
+  searchParams: Promise<{ message?: string }>
+}
+
+export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps) {
+  const params = await searchParams
+  const errorMessage = params.message || 'El enlace de confirmación puede haber expirado o ya fue utilizado.'
+  
   return (
     <div className="flex min-h-svh w-full items-center justify-center bg-muted/30 p-6 md:p-10">
       <div className="w-full max-w-md">
@@ -18,21 +25,23 @@ export default function AuthErrorPage() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
                 <AlertCircle className="h-8 w-8 text-destructive" />
               </div>
-              <CardTitle className="text-2xl">Error de Autenticación</CardTitle>
+              <CardTitle className="text-2xl">Error de Autenticacion</CardTitle>
               <CardDescription>
                 Hubo un problema al verificar tu cuenta
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <p className="mb-6 text-sm text-muted-foreground">
-                El enlace de confirmación puede haber expirado o ya fue utilizado.
-                Por favor, intenta iniciar sesión o solicita un nuevo enlace de confirmación.
+                {errorMessage}
+              </p>
+              <p className="mb-6 text-sm text-muted-foreground">
+                Por favor, intenta iniciar sesion o solicita un nuevo enlace de confirmacion.
               </p>
 
               <div className="flex flex-col gap-3">
                 <Button asChild className="w-full">
                   <Link href="/auth/login">
-                    Ir a Iniciar Sesión
+                    Ir a Iniciar Sesion
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full">
