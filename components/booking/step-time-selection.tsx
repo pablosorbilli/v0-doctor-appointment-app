@@ -46,11 +46,17 @@ export function StepTimeSelection({
     fetchBookedSlots()
   }, [doctorId, selectedDate])
 
-  // Obtener el día de la semana de la fecha seleccionada
-  const selectedDay = new Date(selectedDate).getDay()
+  // Convertir de JS dayOfWeek (0=Dom, 1=Lun, ..., 6=Sab) a DB dayOfWeek (0=Lun, ..., 6=Dom)
+  const jsToDbDayOfWeek = (jsDay: number): number => {
+    return jsDay === 0 ? 6 : jsDay - 1
+  }
+
+  // Obtener el día de la semana de la fecha seleccionada (convertido al formato de la DB)
+  const jsDayOfWeek = new Date(selectedDate).getDay()
+  const dbDayOfWeek = jsToDbDayOfWeek(jsDayOfWeek)
   
   // Obtener disponibilidad para ese día
-  const dayAvailability = availability.filter((a) => a.day_of_week === selectedDay)
+  const dayAvailability = availability.filter((a) => a.day_of_week === dbDayOfWeek)
 
   // Generar slots de tiempo
   const generateTimeSlots = () => {
