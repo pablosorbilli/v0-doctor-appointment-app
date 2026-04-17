@@ -24,38 +24,57 @@ interface AvailabilityFormProps {
 export function AvailabilityForm({ availabilityByDay }: AvailabilityFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [expandedDay, setExpandedDay] = useState<number | null>(null)
-  const [newSlot, setNewSlot] = useState({ startTime: '09:00', endTime: '18:00' })
+  // Estado separado por día para evitar conflictos
+  const [newSlots, setNewSlots] = useState<Record<number, { startTime: string; endTime: string }>>(
+    Object.fromEntries(availabilityByDay.map(d => [d.dayIndex, { startTime: '09:00', endTime: '18:00' }]))
+  )
   const router = useRouter()
 
+  const getNewSlot = (dayIndex: number) => newSlots[dayIndex] || { startTime: '09:00', endTime: '18:00' }
+  
+  const setNewSlot = (dayIndex: number, slot: { startTime: string; endTime: string }) => {
+    setNewSlots(prev => ({ ...prev, [dayIndex]: slot }))
+  }
+
   const addSlot = async (dayIndex: number) => {
+    const slotToAdd = getNewSlot(dayIndex)
+    
+    // Validar que el horario no esté duplicado
+    const existingSlots = availabilityByDay.find(d => d.dayIndex === dayIndex)?.slots || []
+    const isDuplicate = existingSlots.some(
+      s => s.start_time.slice(0, 5) === slotToAdd.startTime
+    )
+    
+    if (isDuplicate) {
+      alert('Ya existe un horario que comienza a las ' + slotToAdd.startTime + ' para este día. Por favor, elige otro horario de inicio.')
+      return
+    }
+    
     setIsLoading(true)
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      console.error('[v0] No user found')
       setIsLoading(false)
       return
     }
 
-    const { data, error } = await supabase.from('availability').insert({
+    const { error } = await supabase.from('availability').insert({
       doctor_id: user.id,
       day_of_week: dayIndex,
-      start_time: newSlot.startTime + ':00',
-      end_time: newSlot.endTime + ':00',
+      start_time: slotToAdd.startTime + ':00',
+      end_time: slotToAdd.endTime + ':00',
       is_active: true,
     }).select()
 
     if (error) {
-      console.error('[v0] Error adding slot:', error)
       alert('Error al agregar horario: ' + error.message)
-    } else {
-      console.log('[v0] Slot added successfully:', data)
     }
 
     router.refresh()
     setIsLoading(false)
-    setNewSlot({ startTime: '09:00', endTime: '18:00' })
+    // Reiniciar con un horario diferente basado en el último agregado
+    setNewSlot(dayIndex, { startTime: '14:00', endTime: '18:00' })
   }
 
   const removeSlot = async (slotId: string) => {
@@ -132,8 +151,8 @@ export function AvailabilityForm({ availabilityByDay }: AvailabilityFormProps) {
                     <Input
                       id={`start-${day.dayIndex}`}
                       type="time"
-                      value={newSlot.startTime}
-                      onChange={(e) => setNewSlot({ ...newSlot, startTime: e.target.value })}
+                      value={getNewSlot(day.dayIndex).startTime}
+                      onChange={(e) => setNewSlot(day.dayIndex, { ...getNewSlot(day.dayIndex), startTime: e.target.value })}
                       className="w-28"
                     />
                   </div>
@@ -144,8 +163,8 @@ export function AvailabilityForm({ availabilityByDay }: AvailabilityFormProps) {
                     <Input
                       id={`end-${day.dayIndex}`}
                       type="time"
-                      value={newSlot.endTime}
-                      onChange={(e) => setNewSlot({ ...newSlot, endTime: e.target.value })}
+                      value={getNewSlot(day.dayIndex).endTime}
+                      onChange={(e) => setNewSlot(day.dayIndex, { ...getNewSlot(day.dayIndex), endTime: e.target.value })}
                       className="w-28"
                     />
                   </div>
