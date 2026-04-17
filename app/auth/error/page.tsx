@@ -4,12 +4,17 @@ import Link from 'next/link'
 import { AlertCircle, Stethoscope } from 'lucide-react'
 
 interface AuthErrorPageProps {
-  searchParams: Promise<{ message?: string }>
+  searchParams: Promise<{ message?: string; error_code?: string }>
 }
 
 export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps) {
   const params = await searchParams
-  const errorMessage = params.message || 'El enlace de confirmación puede haber expirado o ya fue utilizado.'
+  const errorCode = params.error_code
+  const isExpiredLink = params.message?.includes('expired') || errorCode === 'otp_expired'
+  
+  const errorMessage = isExpiredLink
+    ? 'El enlace de confirmacion ha expirado. Los enlaces son validos por 1 hora.'
+    : params.message || 'El enlace de confirmacion puede haber expirado o ya fue utilizado.'
   
   return (
     <div className="flex min-h-svh w-full items-center justify-center bg-muted/30 p-6 md:p-10">
@@ -39,16 +44,25 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
               </p>
 
               <div className="flex flex-col gap-3">
-                <Button asChild className="w-full">
+                {isExpiredLink && (
+                  <Button asChild className="w-full">
+                    <Link href="/auth/reenviar-confirmacion">
+                      Reenviar Email de Confirmacion
+                    </Link>
+                  </Button>
+                )}
+                <Button asChild variant={isExpiredLink ? "outline" : "default"} className="w-full">
                   <Link href="/auth/login">
                     Ir a Iniciar Sesion
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/auth/registro">
-                    Crear Nueva Cuenta
-                  </Link>
-                </Button>
+                {!isExpiredLink && (
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/auth/registro">
+                      Crear Nueva Cuenta
+                    </Link>
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

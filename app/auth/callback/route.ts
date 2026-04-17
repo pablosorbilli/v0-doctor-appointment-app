@@ -33,10 +33,12 @@ export async function GET(request: NextRequest) {
 
   // If we have an error_description in URL, redirect to error page with it
   const errorDescription = searchParams.get('error_description')
+  const errorCode = searchParams.get('error_code')
   if (errorDescription) {
-    return NextResponse.redirect(
-      `${origin}/auth/error?message=${encodeURIComponent(errorDescription)}`
-    )
+    const params = new URLSearchParams()
+    params.set('message', errorDescription)
+    if (errorCode) params.set('error_code', errorCode)
+    return NextResponse.redirect(`${origin}/auth/error?${params.toString()}`)
   }
 
   return NextResponse.redirect(`${origin}/auth/error?message=No se pudo verificar el email`)

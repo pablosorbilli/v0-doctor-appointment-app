@@ -90,14 +90,25 @@ export default function LoginPage() {
                     {isLoading ? 'Ingresando...' : 'Ingresar'}
                   </Button>
                 </div>
-                <div className="mt-4 text-center text-sm">
-                  ¿No tienes cuenta?{' '}
-                  <Link
-                    href="/auth/registro"
-                    className="text-primary underline underline-offset-4"
-                  >
-                    Registrate
-                  </Link>
+                <div className="mt-4 space-y-2 text-center text-sm">
+                  <div>
+                    ¿No tienes cuenta?{' '}
+                    <Link
+                      href="/auth/registro"
+                      className="text-primary underline underline-offset-4"
+                    >
+                      Registrate
+                    </Link>
+                  </div>
+                  <div className="text-muted-foreground">
+                    ¿No recibiste el email?{' '}
+                    <Link
+                      href="/auth/reenviar-confirmacion"
+                      className="text-primary underline underline-offset-4"
+                    >
+                      Reenviar confirmacion
+                    </Link>
+                  </div>
                 </div>
               </form>
             </CardContent>
