@@ -18,14 +18,25 @@ export default async function DashboardPage() {
   const monthStart = format(startOfMonth(today), 'yyyy-MM-dd')
   const monthEnd = format(endOfMonth(today), 'yyyy-MM-dd')
 
-  // Turnos de hoy
+  // Turnos de hoy (todos los estados excepto cancelados)
   const { data: todayAppointments } = await supabase
     .from('appointments')
     .select('*, appointment_type:appointment_types(*)')
     .eq('doctor_id', user?.id)
     .eq('date', todayStr)
-    .in('status', ['confirmed', 'completed'])
+    .in('status', ['confirmed', 'completed', 'pending_payment'])
     .order('start_time')
+
+  // Próximos turnos (todos los estados excepto cancelados)
+  const { data: upcomingAppointments } = await supabase
+    .from('appointments')
+    .select('*, appointment_type:appointment_types(*)')
+    .eq('doctor_id', user?.id)
+    .gt('date', todayStr)
+    .in('status', ['confirmed', 'pending_payment'])
+    .order('date')
+    .order('start_time')
+    .limit(5)
 
   // Turnos esta semana
   const { count: weekCount } = await supabase
@@ -142,6 +153,53 @@ export default async function DashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Upcoming Appointments */}
+      {upcomingAppointments && upcomingAppointments.length > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Proximos Turnos</CardTitle>
+              <CardDescription>
+                Turnos agendados para los proximos dias
+              </CardDescription>
+            </div>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/turnos">Ver calendario</Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {upcomingAppointments.map((appointment) => (
+                <div
+                  key={appointment.id}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="text-center">
+                      <div className="text-sm font-medium">
+                        {format(new Date(appointment.date), "d MMM", { locale: es })}
+                      </div>
+                      <div className="text-lg font-semibold">
+                        {appointment.start_time.slice(0, 5)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-medium">{appointment.patient_name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {appointment.appointment_type?.name || 'Consulta'}
+                      </div>
+                    </div>
+                  </div>
+                  <Badge variant={appointment.status === 'pending_payment' ? 'outline' : 'default'}>
+                    {appointment.status === 'pending_payment' ? 'Pendiente Pago' : 'Confirmado'}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

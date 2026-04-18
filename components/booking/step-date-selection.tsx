@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { format, addDays, isSameDay, startOfDay } from 'date-fns'
+import { format, addDays, addWeeks, isSameDay, startOfDay, startOfWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -22,6 +22,10 @@ export function StepDateSelection({
 }: StepDateSelectionProps) {
   const [weekOffset, setWeekOffset] = useState(0)
   const today = startOfDay(new Date())
+  
+  // Inicio de la semana actual (Lunes)
+  const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 })
+  const displayWeekStart = addWeeks(currentWeekStart, weekOffset)
 
   // Obtener días disponibles de la semana
   // En la DB: 0=Lunes, 1=Martes, 2=Miércoles, 3=Jueves, 4=Viernes, 5=Sábado, 6=Domingo
@@ -34,13 +38,12 @@ export function StepDateSelection({
     return jsDay === 0 ? 6 : jsDay - 1
   }
 
-  // Generar las próximas 2 semanas
+  // Generar 2 semanas empezando desde el lunes de la semana mostrada
   const generateDays = () => {
     const days = []
-    const startDate = addDays(today, weekOffset * 7)
     
     for (let i = 0; i < 14; i++) {
-      const date = addDays(startDate, i)
+      const date = addDays(displayWeekStart, i)
       const jsDayOfWeek = date.getDay()
       const dbDayOfWeek = jsToDbDayOfWeek(jsDayOfWeek)
       const dateStr = format(date, 'yyyy-MM-dd')
@@ -50,13 +53,16 @@ export function StepDateSelection({
       const isException = exception && !exception.is_available
       
       // Verificar si el médico atiende este día de la semana (usando el mapeo correcto)
+      // También verificar que la fecha no sea anterior a hoy
       const isAvailable = availableDays.has(dbDayOfWeek) && !isException && date >= today
+      const isPast = date < today
       
       days.push({
         date,
         dateStr,
         dayOfWeek: dbDayOfWeek,
         isAvailable,
+        isPast,
         isToday: isSameDay(date, today),
       })
     }
@@ -84,7 +90,7 @@ export function StepDateSelection({
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="text-sm font-medium">
-          {format(addDays(today, weekOffset * 7), "MMMM yyyy", { locale: es })}
+          {format(displayWeekStart, "MMMM yyyy", { locale: es })}
         </span>
         <Button
           variant="outline"
@@ -133,6 +139,7 @@ interface DayButtonProps {
     date: Date
     dateStr: string
     isAvailable: boolean
+    isPast: boolean
     isToday: boolean
   }
   isSelected: boolean
@@ -140,16 +147,18 @@ interface DayButtonProps {
 }
 
 function DayButton({ day, isSelected, onSelect }: DayButtonProps) {
+  const isDisabled = !day.isAvailable || day.isPast
+  
   return (
     <button
       onClick={onSelect}
-      disabled={!day.isAvailable}
+      disabled={isDisabled}
       className={`flex h-12 w-full flex-col items-center justify-center rounded-lg border text-sm transition-colors ${
         isSelected
           ? 'border-primary bg-primary text-primary-foreground'
-          : day.isAvailable
+          : day.isAvailable && !day.isPast
             ? 'hover:border-primary hover:bg-primary/5'
-            : 'cursor-not-allowed bg-muted/50 text-muted-foreground'
+            : 'cursor-not-allowed bg-muted/50 text-muted-foreground opacity-50'
       } ${day.isToday ? 'ring-1 ring-primary ring-offset-1' : ''}`}
     >
       <span className="font-medium">{format(day.date, 'd')}</span>
