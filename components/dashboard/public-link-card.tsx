@@ -13,12 +13,22 @@ interface PublicLinkCardProps {
 
 export function PublicLinkCard({ slug }: PublicLinkCardProps) {
   const [copied, setCopied] = useState(false)
+  const [displayUrl, setDisplayUrl] = useState(`/dr/${slug}`)
   
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-  const publicUrl = `${baseUrl}/dr/${slug}`
+  // Actualizar la URL completa en el cliente
+  if (typeof window !== 'undefined' && displayUrl === `/dr/${slug}`) {
+    const fullUrl = `${window.location.origin}/dr/${slug}`
+    if (displayUrl !== fullUrl) {
+      setDisplayUrl(fullUrl)
+    }
+  }
 
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(publicUrl)
+    // Siempre copiar la URL completa actual
+    const fullUrl = typeof window !== 'undefined' 
+      ? `${window.location.origin}/dr/${slug}`
+      : displayUrl
+    await navigator.clipboard.writeText(fullUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -34,7 +44,7 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
       <CardContent className="space-y-4">
         <div className="flex gap-2">
           <Input
-            value={publicUrl}
+            value={displayUrl}
             readOnly
             className="font-mono text-sm"
           />
