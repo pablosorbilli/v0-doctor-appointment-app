@@ -1,10 +1,19 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
+
+// Cliente anónimo para operaciones de pacientes (sin auth)
+function createAnonClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log('[v0] Creating appointment with body:', JSON.stringify(body, null, 2))
     
     const {
       doctorId,
@@ -23,13 +32,14 @@ export async function POST(request: NextRequest) {
 
     // Validaciones básicas
     if (!doctorId || !date || !startTime || !patientName || !patientEmail) {
+      console.log('[v0] Missing required fields')
       return NextResponse.json(
         { error: 'Faltan campos requeridos' },
         { status: 400 }
       )
     }
 
-    const supabase = await createClient()
+    const supabase = createAnonClient()
 
     // Verificar que el slot no esté ocupado
     const { data: existingAppointment } = await supabase
@@ -78,12 +88,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (appointmentError) {
-      console.error('Error creating appointment:', appointmentError)
+      console.error('[v0] Error creating appointment:', appointmentError)
       return NextResponse.json(
-        { error: 'Error al crear el turno' },
+        { error: 'Error al crear el turno: ' + appointmentError.message },
         { status: 500 }
       )
     }
+
+    console.log('[v0] Appointment created successfully:', appointment.id)
 
     // Si hay monto a pagar, crear preferencia de Mercado Pago
     if (paymentAmount > 0 && process.env.MERCADOPAGO_ACCESS_TOKEN) {
