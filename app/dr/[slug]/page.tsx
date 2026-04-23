@@ -1,4 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
+
+// Cliente anónimo para páginas públicas (sin requerir sesión)
+function createAnonClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 import { notFound } from 'next/navigation'
 import { BookingWizard } from '@/components/booking/booking-wizard'
 import { Stethoscope, MapPin, Award, Clock } from 'lucide-react'
@@ -10,7 +18,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = createAnonClient()
   
   const { data: doctor } = await supabase
     .from('doctors')
@@ -30,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DoctorBookingPage({ params }: PageProps) {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   const { data: doctor } = await supabase
     .from('doctors')

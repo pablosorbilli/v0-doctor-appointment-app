@@ -30,6 +30,10 @@ export function StepDateSelection({
   // Obtener días disponibles de la semana
   // La DB usa el mismo sistema que JS: 0=Domingo, 1=Lunes, 2=Martes, etc.
   const availableDays = new Set(availability.map((a) => a.day_of_week))
+  
+  // Debug logging
+  console.log('[v0] Availability from DB:', availability.map(a => ({ day_of_week: a.day_of_week, start_time: a.start_time })))
+  console.log('[v0] Available days set:', Array.from(availableDays))
 
   // Generar 2 semanas empezando desde el lunes de la semana mostrada
   const generateDays = () => {
@@ -65,6 +69,14 @@ export function StepDateSelection({
   const days = generateDays()
   const firstWeek = days.slice(0, 7)
   const secondWeek = days.slice(7, 14)
+  
+  // Debug: mostrar los primeros 7 días generados
+  console.log('[v0] First week days:', firstWeek.map(d => ({
+    dateStr: d.dateStr,
+    dayOfWeek: d.dayOfWeek,
+    dayName: ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'][d.dayOfWeek],
+    isAvailable: d.isAvailable
+  })))
 
   return (
     <div className="space-y-4">
