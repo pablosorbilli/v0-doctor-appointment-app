@@ -28,15 +28,8 @@ export function StepDateSelection({
   const displayWeekStart = addWeeks(currentWeekStart, weekOffset)
 
   // Obtener días disponibles de la semana
-  // En la DB: 0=Lunes, 1=Martes, 2=Miércoles, 3=Jueves, 4=Viernes, 5=Sábado, 6=Domingo
+  // La DB usa el mismo sistema que JS: 0=Domingo, 1=Lunes, 2=Martes, etc.
   const availableDays = new Set(availability.map((a) => a.day_of_week))
-
-  // Convertir de JS dayOfWeek (0=Dom, 1=Lun, ..., 6=Sab) a DB dayOfWeek (0=Lun, ..., 6=Dom)
-  const jsToDbDayOfWeek = (jsDay: number): number => {
-    // JS: 0=Dom, 1=Lun, 2=Mar, 3=Mie, 4=Jue, 5=Vie, 6=Sab
-    // DB: 0=Lun, 1=Mar, 2=Mie, 3=Jue, 4=Vie, 5=Sab, 6=Dom
-    return jsDay === 0 ? 6 : jsDay - 1
-  }
 
   // Generar 2 semanas empezando desde el lunes de la semana mostrada
   const generateDays = () => {
@@ -44,23 +37,22 @@ export function StepDateSelection({
     
     for (let i = 0; i < 14; i++) {
       const date = addDays(displayWeekStart, i)
-      const jsDayOfWeek = date.getDay()
-      const dbDayOfWeek = jsToDbDayOfWeek(jsDayOfWeek)
+      const dayOfWeek = date.getDay() // 0=Dom, 1=Lun, 2=Mar, etc. (igual que la DB)
       const dateStr = format(date, 'yyyy-MM-dd')
       
       // Verificar si hay excepción para este día
       const exception = exceptions.find((e) => e.date === dateStr)
       const isException = exception && !exception.is_available
       
-      // Verificar si el médico atiende este día de la semana (usando el mapeo correcto)
+      // Verificar si el médico atiende este día de la semana
       // También verificar que la fecha no sea anterior a hoy
-      const isAvailable = availableDays.has(dbDayOfWeek) && !isException && date >= today
+      const isAvailable = availableDays.has(dayOfWeek) && !isException && date >= today
       const isPast = date < today
       
       days.push({
         date,
         dateStr,
-        dayOfWeek: dbDayOfWeek,
+        dayOfWeek,
         isAvailable,
         isPast,
         isToday: isSameDay(date, today),

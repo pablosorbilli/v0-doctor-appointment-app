@@ -14,6 +14,10 @@ export async function GET(request: NextRequest) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      // Si es verificacion de email (signup), redirigir a pagina de verificado
+      if (type === 'signup' || type === 'email') {
+        return NextResponse.redirect(`${origin}/auth/verificado`)
+      }
       return NextResponse.redirect(`${origin}${next}`)
     }
     console.error('[v0] Error exchanging code for session:', error)
@@ -26,7 +30,8 @@ export async function GET(request: NextRequest) {
       type: type as 'signup' | 'email' | 'recovery' | 'invite',
     })
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      // Redirigir a pagina de verificado exitoso
+      return NextResponse.redirect(`${origin}/auth/verificado`)
     }
     console.error('[v0] Error verifying OTP:', error)
   }

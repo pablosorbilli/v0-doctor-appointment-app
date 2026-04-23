@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,24 +13,29 @@ interface PublicLinkCardProps {
 
 export function PublicLinkCard({ slug }: PublicLinkCardProps) {
   const [copied, setCopied] = useState(false)
-  const [displayUrl, setDisplayUrl] = useState(`/dr/${slug}`)
+  const [fullUrl, setFullUrl] = useState(`/dr/${slug}`)
   
-  // Actualizar la URL completa en el cliente
-  if (typeof window !== 'undefined' && displayUrl === `/dr/${slug}`) {
-    const fullUrl = `${window.location.origin}/dr/${slug}`
-    if (displayUrl !== fullUrl) {
-      setDisplayUrl(fullUrl)
-    }
-  }
+  // Actualizar la URL completa cuando el componente se monta en el cliente
+  useEffect(() => {
+    setFullUrl(`${window.location.origin}/dr/${slug}`)
+  }, [slug])
 
   const copyToClipboard = async () => {
-    // Siempre copiar la URL completa actual
-    const fullUrl = typeof window !== 'undefined' 
-      ? `${window.location.origin}/dr/${slug}`
-      : displayUrl
-    await navigator.clipboard.writeText(fullUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(fullUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      // Fallback para navegadores que no soportan clipboard API
+      const textArea = document.createElement('textarea')
+      textArea.value = fullUrl
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
   }
 
   return (
@@ -44,7 +49,7 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
       <CardContent className="space-y-4">
         <div className="flex gap-2">
           <Input
-            value={displayUrl}
+            value={fullUrl}
             readOnly
             className="font-mono text-sm"
           />
