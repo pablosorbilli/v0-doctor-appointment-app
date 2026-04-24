@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
+// Deshabilitar cache para mostrar siempre datos frescos
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Cliente anónimo para páginas públicas (sin requerir sesión)
 function createAnonClient() {
   return createClient(

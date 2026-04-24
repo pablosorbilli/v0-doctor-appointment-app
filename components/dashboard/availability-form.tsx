@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Trash2, Clock } from 'lucide-react'
+import { Plus, Trash2, Clock, Check } from 'lucide-react'
 import type { Availability } from '@/lib/types/database'
 
 interface DayAvailability {
@@ -23,12 +23,18 @@ interface AvailabilityFormProps {
 
 export function AvailabilityForm({ availabilityByDay }: AvailabilityFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [savedMessage, setSavedMessage] = useState<string | null>(null)
   const [expandedDay, setExpandedDay] = useState<number | null>(null)
   // Estado separado por día para evitar conflictos
   const [newSlots, setNewSlots] = useState<Record<number, { startTime: string; endTime: string }>>(
     Object.fromEntries(availabilityByDay.map(d => [d.dayIndex, { startTime: '09:00', endTime: '18:00' }]))
   )
   const router = useRouter()
+  
+  const showSavedMessage = (message: string) => {
+    setSavedMessage(message)
+    setTimeout(() => setSavedMessage(null), 3000)
+  }
 
   const getNewSlot = (dayIndex: number) => newSlots[dayIndex] || { startTime: '09:00', endTime: '18:00' }
   
@@ -69,6 +75,8 @@ export function AvailabilityForm({ availabilityByDay }: AvailabilityFormProps) {
 
     if (error) {
       alert('Error al agregar horario: ' + error.message)
+    } else {
+      showSavedMessage('Horario agregado correctamente')
     }
 
     router.refresh()
@@ -80,22 +88,36 @@ export function AvailabilityForm({ availabilityByDay }: AvailabilityFormProps) {
   const removeSlot = async (slotId: string) => {
     setIsLoading(true)
     const supabase = createClient()
-    await supabase.from('availability').delete().eq('id', slotId)
+    const { error } = await supabase.from('availability').delete().eq('id', slotId)
+    if (!error) {
+      showSavedMessage('Horario eliminado')
+    }
     router.refresh()
     setIsLoading(false)
   }
 
   const toggleSlot = async (slotId: string, isActive: boolean) => {
     const supabase = createClient()
-    await supabase
+    const { error } = await supabase
       .from('availability')
       .update({ is_active: isActive })
       .eq('id', slotId)
+    if (!error) {
+      showSavedMessage(isActive ? 'Horario activado' : 'Horario desactivado')
+    }
     router.refresh()
   }
 
   return (
     <div className="space-y-4">
+      {/* Mensaje de confirmacion */}
+      {savedMessage && (
+        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-green-800">
+          <Check className="h-4 w-4" />
+          <span className="text-sm font-medium">{savedMessage}</span>
+        </div>
+      )}
+      
       {availabilityByDay.map((day) => (
         <div key={day.dayIndex} className="rounded-lg border">
           <button
