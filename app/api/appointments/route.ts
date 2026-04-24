@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
+import { sendAppointmentConfirmation, sendDoctorNotification } from '@/lib/email'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 // Cliente anónimo para operaciones de pacientes (sin auth)
 function createAnonClient() {
@@ -13,7 +16,6 @@ function createAnonClient() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    console.log('[v0] Creating appointment with body:', JSON.stringify(body, null, 2))
     
     const {
       doctorId,
@@ -32,7 +34,6 @@ export async function POST(request: NextRequest) {
 
     // Validaciones básicas
     if (!doctorId || !date || !startTime || !patientName || !patientEmail) {
-      console.log('[v0] Missing required fields')
       return NextResponse.json(
         { error: 'Faltan campos requeridos' },
         { status: 400 }
@@ -95,7 +96,57 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[v0] Appointment created successfully:', appointment.id)
+    
+
+    // Obtener datos del médico para el email
+    const { data: doctor } = await supabase
+      .from('doctors')
+      .select('first_name, last_name, specialty, email, address')
+      .eq('id', doctorId)
+      .single()
+
+    // Obtener tipo de consulta si existe
+    const { data: appointmentType } = appointmentTypeId ? await supabase
+      .from('appointment_types')
+      .select('name')
+      .eq('id', appointmentTypeId)
+      .single() : { data: null }
+
+    const dateFormatted = format(
+      new Date(date),
+      "EEEE d 'de' MMMM 'de' yyyy",
+      { locale: es }
+    )
+
+    // Enviar email de confirmación al paciente
+    try {
+      await sendAppointmentConfirmation({
+        patientName,
+        patientEmail,
+        doctorName: `${doctor?.first_name} ${doctor?.last_name}`,
+        doctorSpecialty: doctor?.specialty || '',
+        date: dateFormatted,
+        time: startTime.slice(0, 5),
+        appointmentType: appointmentType?.name,
+        address: doctor?.address,
+      })
+
+      // Enviar notificación al médico
+      await sendDoctorNotification({
+        doctorEmail: doctor?.email || '',
+        doctorName: `${doctor?.first_name} ${doctor?.last_name}`,
+        patientName,
+        patientEmail,
+        patientPhone: patientPhone || undefined,
+        date: dateFormatted,
+        time: startTime.slice(0, 5),
+        appointmentType: appointmentType?.name,
+        visitReason: visitReason || undefined,
+      })
+    } catch (emailError) {
+      console.error('[v0] Error sending confirmation emails:', emailError)
+      // No fallar la reserva si el email falla
+    }
 
     // Si hay monto a pagar, crear preferencia de Mercado Pago
     if (paymentAmount > 0 && process.env.MERCADOPAGO_ACCESS_TOKEN) {
@@ -105,12 +156,6 @@ export async function POST(request: NextRequest) {
         })
 
         const preference = new Preference(client)
-
-        const { data: doctor } = await supabase
-          .from('doctors')
-          .select('first_name, last_name, specialty')
-          .eq('id', doctorId)
-          .single()
 
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.headers.get('origin') || ''
 
