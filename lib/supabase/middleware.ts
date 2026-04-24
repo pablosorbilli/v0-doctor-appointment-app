@@ -41,10 +41,12 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Si está logueado y va a login/signup, redirigir a dashboard
+  // (pero permitir completar-perfil sin redirección)
   if (
     user &&
     (request.nextUrl.pathname === '/auth/login' ||
-      request.nextUrl.pathname === '/auth/sign-up')
+      request.nextUrl.pathname === '/auth/sign-up') &&
+    !request.nextUrl.pathname.startsWith('/auth/completar-perfil')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'

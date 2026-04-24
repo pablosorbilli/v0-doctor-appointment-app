@@ -22,7 +22,7 @@ export default async function DashboardLayout({
     .single()
 
   if (!doctor) {
-    redirect('/auth/login')
+    redirect('/auth/completar-perfil')
   }
 
   return (
