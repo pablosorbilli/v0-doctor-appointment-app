@@ -22,8 +22,7 @@ export default async function DashboardLayout({
     .single()
 
   if (!doctor) {
-    // Usuario autenticado pero sin perfil de doctor - redirigir a completar perfil
-    redirect('/auth/completar-perfil')
+    redirect('/auth/login')
   }
 
   return (
