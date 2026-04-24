@@ -40,10 +40,24 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Si está logueado y va a login/signup, redirigir a dashboard
+  // Rutas de auth que no deben redirigir aunque el usuario este logueado
+  const authExcludedPaths = [
+    '/auth/verificado',
+    '/auth/callback',
+    '/auth/error',
+    '/auth/registro-exitoso',
+  ]
+  
+  const isExcludedAuthPath = authExcludedPaths.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  )
+
+  // Si está logueado y va a login/registro (pero no a rutas excluidas), redirigir a dashboard
   if (
     user &&
+    !isExcludedAuthPath &&
     (request.nextUrl.pathname === '/auth/login' ||
+      request.nextUrl.pathname === '/auth/registro' ||
       request.nextUrl.pathname === '/auth/sign-up')
   ) {
     const url = request.nextUrl.clone()
