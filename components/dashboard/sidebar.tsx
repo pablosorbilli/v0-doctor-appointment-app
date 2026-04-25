@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { Doctor } from '@/lib/types/database'
+import { Button } from '@/components/ui/button'
 import {
   Stethoscope,
   LayoutDashboard,
@@ -13,6 +15,9 @@ import {
   Settings,
   CreditCard,
   Link2,
+  ExternalLink,
+  Copy,
+  Check,
 } from 'lucide-react'
 
 const navItems = [
@@ -31,6 +36,29 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ doctor }: DashboardSidebarProps) {
   const pathname = usePathname()
+  const [copied, setCopied] = useState(false)
+  
+  const publicUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/dr/${doctor.slug}`
+    : `/dr/${doctor.slug}`
+  
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Fallback
+      const textArea = document.createElement('textarea')
+      textArea.value = publicUrl
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   return (
     <aside className="hidden w-64 flex-col border-r bg-card lg:flex">
@@ -63,21 +91,37 @@ export function DashboardSidebar({ doctor }: DashboardSidebarProps) {
       </nav>
 
       <div className="border-t p-4">
-        <div className="rounded-lg bg-muted p-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+        <div className="rounded-lg bg-primary/10 p-4">
+          <div className="mb-3 flex items-center gap-2 text-sm font-medium text-primary">
             <Link2 className="h-4 w-4" />
-            Tu Link
+            Link para Pacientes
           </div>
-          <code className="block truncate text-xs text-muted-foreground">
-            /dr/{doctor.slug}
-          </code>
-          <Link
-            href={`/dr/${doctor.slug}`}
-            target="_blank"
-            className="mt-2 block text-xs text-primary hover:underline"
-          >
-            Ver página pública
-          </Link>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 justify-start text-xs"
+              onClick={() => window.open(`/dr/${doctor.slug}`, '_blank')}
+            >
+              <ExternalLink className="mr-1 h-3 w-3" />
+              Ver página
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={copyLink}
+            >
+              {copied ? (
+                <Check className="h-3 w-3 text-green-600" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
+            </Button>
+          </div>
+          <p className="mt-2 text-[10px] text-muted-foreground">
+            Comparte este link con tus pacientes
+          </p>
         </div>
       </div>
     </aside>
