@@ -127,12 +127,7 @@ export function StepTimeSelection({
         </div>
       ) : (
         <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
-          <p>No hay horarios disponibles para esta fecha</p>
-          <p className="mt-2 text-xs">
-            Debug: Fecha={selectedDate}, Día semana={dayOfWeek}, 
-            Disponibilidad total={availability.length}, 
-            Para este día={dayAvailability.length}
-          </p>
+          No hay horarios disponibles para esta fecha
         </div>
       )}
     </div>

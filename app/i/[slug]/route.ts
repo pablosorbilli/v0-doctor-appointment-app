@@ -1,4 +1,3 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
@@ -6,22 +5,10 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params
-  const supabase = await createClient()
   
-  // Obtener la URL base
-  const baseUrl = request.nextUrl.origin
+  // Redirigir directamente a la página del doctor
+  // La página /dr/[slug] ya maneja el caso de doctor no encontrado
+  const redirectUrl = new URL(`/dr/${slug}`, request.url)
   
-  // Verificar que el doctor existe
-  const { data: doctor } = await supabase
-    .from('doctors')
-    .select('slug')
-    .eq('slug', slug)
-    .single()
-  
-  if (doctor) {
-    return NextResponse.redirect(new URL(`/dr/${slug}`, baseUrl))
-  }
-  
-  // Si no existe, redirigir a la página principal
-  return NextResponse.redirect(new URL('/', baseUrl))
+  return NextResponse.redirect(redirectUrl, { status: 307 })
 }
