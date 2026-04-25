@@ -48,7 +48,9 @@ export function StepTimeSelection({
 
   // Obtener el día de la semana de la fecha seleccionada
   // La DB usa el mismo sistema que JS: 0=Domingo, 1=Lunes, 2=Martes, etc.
-  const dayOfWeek = new Date(selectedDate).getDay()
+  // Usamos parse para evitar problemas de timezone con strings tipo "2026-04-25"
+  const parsedDate = parse(selectedDate, 'yyyy-MM-dd', new Date())
+  const dayOfWeek = parsedDate.getDay()
   
   // Obtener disponibilidad para ese día
   const dayAvailability = availability.filter((a) => a.day_of_week === dayOfWeek)
@@ -125,7 +127,12 @@ export function StepTimeSelection({
         </div>
       ) : (
         <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
-          No hay horarios disponibles para esta fecha
+          <p>No hay horarios disponibles para esta fecha</p>
+          <p className="mt-2 text-xs">
+            Debug: Fecha={selectedDate}, Día semana={dayOfWeek}, 
+            Disponibilidad total={availability.length}, 
+            Para este día={dayAvailability.length}
+          </p>
         </div>
       )}
     </div>
