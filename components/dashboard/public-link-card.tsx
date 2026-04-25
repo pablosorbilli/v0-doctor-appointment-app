@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Copy, Check, ExternalLink } from 'lucide-react'
-import Link from 'next/link'
 
 interface PublicLinkCardProps {
   slug: string
@@ -13,22 +11,22 @@ interface PublicLinkCardProps {
 
 export function PublicLinkCard({ slug }: PublicLinkCardProps) {
   const [copied, setCopied] = useState(false)
-  const [fullUrl, setFullUrl] = useState(`/dr/${slug}`)
+  const [shortUrl, setShortUrl] = useState('')
   
-  // Actualizar la URL completa cuando el componente se monta en el cliente
+  // Actualizar la URL cuando el componente se monta en el cliente
   useEffect(() => {
-    setFullUrl(`${window.location.origin}/dr/${slug}`)
+    setShortUrl(`${window.location.origin}/i/${slug}`)
   }, [slug])
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(fullUrl)
+      await navigator.clipboard.writeText(shortUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       // Fallback para navegadores que no soportan clipboard API
       const textArea = document.createElement('textarea')
-      textArea.value = fullUrl
+      textArea.value = shortUrl
       document.body.appendChild(textArea)
       textArea.select()
       document.execCommand('copy')
@@ -36,6 +34,10 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
+  }
+
+  const openPublicPage = () => {
+    window.open(`/dr/${slug}`, '_blank')
   }
 
   return (
@@ -48,11 +50,13 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
-          <Input
-            value={fullUrl}
-            readOnly
-            className="font-mono text-sm"
-          />
+          <button
+            onClick={openPublicPage}
+            className="flex-1 rounded-md border bg-muted/50 px-3 py-2 text-left font-mono text-sm hover:bg-muted transition-colors cursor-pointer truncate"
+            title={shortUrl}
+          >
+            {shortUrl || 'Cargando...'}
+          </button>
           <Button variant="outline" size="icon" onClick={copyToClipboard}>
             {copied ? (
               <Check className="h-4 w-4 text-green-600" />
@@ -61,11 +65,9 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
             )}
           </Button>
         </div>
-        <Button variant="outline" className="w-full" asChild>
-          <Link href={`/dr/${slug}`} target="_blank">
-            <ExternalLink className="mr-2 h-4 w-4" />
-            Ver página pública
-          </Link>
+        <Button variant="outline" className="w-full" onClick={openPublicPage}>
+          <ExternalLink className="mr-2 h-4 w-4" />
+          Ver página pública
         </Button>
       </CardContent>
     </Card>
