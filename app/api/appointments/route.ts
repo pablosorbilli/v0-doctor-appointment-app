@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { sendAppointmentConfirmation, sendDoctorNotification } from '@/lib/email'
-import { format } from 'date-fns'
+import { format, parse } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 // Cliente anónimo para operaciones de pacientes (sin auth)
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       .single() : { data: null }
 
     const dateFormatted = format(
-      new Date(date),
+      parse(date, 'yyyy-MM-dd', new Date()),
       "EEEE d 'de' MMMM 'de' yyyy",
       { locale: es }
     )

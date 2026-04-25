@@ -4,12 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { format } from 'date-fns'
+import { format, parse, addMinutes } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { Doctor } from '@/lib/types/database'
 import type { BookingData } from './booking-wizard'
 import { Calendar, Clock, User, Mail, Phone, FileText, CreditCard, Loader2, CheckCircle } from 'lucide-react'
-import { addMinutes, parse } from 'date-fns'
 
 interface StepConfirmationProps {
   doctor: Doctor
@@ -108,7 +107,7 @@ export function StepConfirmation({
           <div className="flex items-center gap-3 text-sm">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span>
-              {bookingData.date && format(new Date(bookingData.date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })}
+              {bookingData.date && format(parse(bookingData.date, 'yyyy-MM-dd', new Date()), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })}
             </span>
           </div>
           
