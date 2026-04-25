@@ -37,7 +37,13 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
   }
 
   const openPublicPage = () => {
+    // Abrir la página directamente sin el redirect para evitar problemas
     window.open(`/dr/${slug}`, '_blank')
+  }
+  
+  const openShortLink = () => {
+    // Abrir el link corto que es el que se comparte
+    window.open(`/i/${slug}`, '_blank')
   }
 
   return (
@@ -51,7 +57,7 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
       <CardContent className="space-y-4">
         <div className="flex gap-2">
           <button
-            onClick={openPublicPage}
+            onClick={openShortLink}
             className="flex-1 rounded-md border bg-muted/50 px-3 py-2 text-left font-mono text-sm hover:bg-muted transition-colors cursor-pointer truncate"
             title={shortUrl}
           >
