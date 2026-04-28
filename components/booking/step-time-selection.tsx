@@ -48,7 +48,10 @@ export function StepTimeSelection({
 
   // Obtener el día de la semana de la fecha seleccionada
   // La DB usa el mismo sistema que JS: 0=Domingo, 1=Lunes, 2=Martes, etc.
-  const dayOfWeek = new Date(selectedDate).getDay()
+  // Parseamos la fecha como local para evitar desfases de timezone
+  const [year, month, day] = selectedDate.split('-').map(Number)
+  const selectedDateObj = new Date(year, month - 1, day)
+  const dayOfWeek = selectedDateObj.getDay()
   
   // Obtener disponibilidad para ese día
   const dayAvailability = availability.filter((a) => a.day_of_week === dayOfWeek)
@@ -57,7 +60,7 @@ export function StepTimeSelection({
   const generateTimeSlots = () => {
     const slots: string[] = []
     const now = new Date()
-    const selectedDateObj = new Date(selectedDate)
+    // Usar la fecha parseada correctamente (sin problemas de timezone)
     const isToday = selectedDateObj.toDateString() === now.toDateString()
 
     dayAvailability.forEach((slot) => {
@@ -71,7 +74,7 @@ export function StepTimeSelection({
         
         // Si es hoy, solo mostrar slots futuros
         if (isToday) {
-          const slotDateTime = new Date(selectedDate)
+          const slotDateTime = new Date(year, month - 1, day)
           const [hours, minutes] = slotStr.split(':')
           slotDateTime.setHours(parseInt(hours), parseInt(minutes))
           
@@ -104,7 +107,7 @@ export function StepTimeSelection({
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         Horarios disponibles para el{' '}
-        {format(new Date(selectedDate), "d 'de' MMMM", { locale: require('date-fns/locale/es').es })}
+        {format(selectedDateObj, "d 'de' MMMM", { locale: require('date-fns/locale/es').es })}
       </p>
 
       {availableSlots.length > 0 ? (

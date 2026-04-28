@@ -30,7 +30,7 @@ export function StepDateSelection({
   // Obtener días disponibles de la semana
   // La DB usa el mismo sistema que JS: 0=Domingo, 1=Lunes, 2=Martes, etc.
   const availableDays = new Set(availability.map((a) => a.day_of_week))
-  
+
   
 
   // Generar 2 semanas empezando desde el lunes de la semana mostrada
