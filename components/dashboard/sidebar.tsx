@@ -13,6 +13,7 @@ import {
   Settings,
   CreditCard,
   Link2,
+  BarChart3,
 } from 'lucide-react'
 
 const navItems = [
@@ -21,8 +22,9 @@ const navItems = [
   { href: '/dashboard/disponibilidad', label: 'Disponibilidad', icon: Clock },
   { href: '/dashboard/tipos-consulta', label: 'Tipos de Consulta', icon: FileText },
   { href: '/dashboard/consentimientos', label: 'Consentimientos', icon: FileText },
+  { href: '/dashboard/reportes', label: 'Reportes', icon: BarChart3 },
   { href: '/dashboard/pagos', label: 'Pagos', icon: CreditCard },
-  { href: '/dashboard/configuracion', label: 'Configuración', icon: Settings },
+  { href: '/dashboard/configuracion', label: 'Configuracion', icon: Settings },
 ]
 
 interface DashboardSidebarProps {

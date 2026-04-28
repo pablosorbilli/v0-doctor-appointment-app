@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProfileForm } from '@/components/dashboard/profile-form'
 import { MercadoPagoSettings } from '@/components/dashboard/mercadopago-settings'
-import { PublicLinkCard } from '@/components/dashboard/public-link-card'
+import { PublicLinkCardLarge } from '@/components/dashboard/public-link-card-large'
 
 export default async function ConfiguracionPage() {
   const supabase = await createClient()
@@ -19,11 +19,14 @@ export default async function ConfiguracionPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Configuración</h1>
+        <h1 className="text-2xl font-bold">Configuracion</h1>
         <p className="text-muted-foreground">
           Administra tu perfil y preferencias
         </p>
       </div>
+
+      {/* Public Link - Destacado */}
+      <PublicLinkCardLarge slug={doctor.slug} doctorName={`${doctor.first_name} ${doctor.last_name}`} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Profile */}
@@ -31,16 +34,13 @@ export default async function ConfiguracionPage() {
           <CardHeader>
             <CardTitle>Perfil Profesional</CardTitle>
             <CardDescription>
-              Esta información se mostrará en tu página pública
+              Esta informacion se mostrara en tu pagina publica
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ProfileForm doctor={doctor} />
           </CardContent>
         </Card>
-
-        {/* Public Link */}
-        <PublicLinkCard slug={doctor.slug} />
 
         {/* Mercado Pago */}
         <MercadoPagoSettings />
