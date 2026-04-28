@@ -74,12 +74,26 @@ export default async function DoctorBookingPage({ params }: PageProps) {
     .eq('doctor_id', doctor.id)
     .gte('date', new Date().toISOString().split('T')[0])
 
-  const { data: consentTemplate } = await supabase
+  // Primero buscar plantilla por defecto, si no existe buscar cualquiera
+  let { data: consentTemplate } = await supabase
     .from('consent_templates')
     .select('*')
     .eq('doctor_id', doctor.id)
     .eq('is_default', true)
-    .single()
+    .maybeSingle()
+  
+  // Si no hay plantilla por defecto, buscar la primera disponible
+  if (!consentTemplate) {
+    const { data: anyTemplate } = await supabase
+      .from('consent_templates')
+      .select('*')
+      .eq('doctor_id', doctor.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    
+    consentTemplate = anyTemplate
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
