@@ -150,6 +150,7 @@ export const MEDICAL_SPECIALTIES = [
   'Dermatología',
   'Endocrinología',
   'Gastroenterología',
+  'Generalista',
   'Ginecología',
   'Medicina General',
   'Medicina Interna',
