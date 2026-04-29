@@ -37,7 +37,14 @@ export default function LoginPage() {
       if (error) throw error
       router.push('/dashboard')
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'Error al iniciar sesión')
+      const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión'
+      if (errorMessage.includes('Invalid login credentials')) {
+        setError('Email o contraseña incorrectos. Por favor, verifica tus datos.')
+      } else if (errorMessage.includes('Email not confirmed')) {
+        setError('Tu email aun no ha sido confirmado. Revisa tu bandeja de entrada.')
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -92,6 +99,14 @@ export default function LoginPage() {
                 </div>
                 <div className="mt-4 space-y-2 text-center text-sm">
                   <div>
+                    <Link
+                      href="/auth/recuperar-password"
+                      className="text-primary underline underline-offset-4"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </Link>
+                  </div>
+                  <div>
                     ¿No tienes cuenta?{' '}
                     <Link
                       href="/auth/registro"
@@ -101,12 +116,12 @@ export default function LoginPage() {
                     </Link>
                   </div>
                   <div className="text-muted-foreground">
-                    ¿No recibiste el email?{' '}
+                    ¿No recibiste el email de confirmacion?{' '}
                     <Link
                       href="/auth/reenviar-confirmacion"
                       className="text-primary underline underline-offset-4"
                     >
-                      Reenviar confirmacion
+                      Reenviar
                     </Link>
                   </div>
                 </div>
