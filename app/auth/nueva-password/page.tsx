@@ -64,7 +64,16 @@ export default function NuevaPasswordPage() {
       }, 2000)
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Error al actualizar la contraseña'
-      setError(errorMessage)
+      if (errorMessage.includes('should be at least')) {
+        setError('La contraseña debe tener al menos 6 caracteres')
+      } else if (errorMessage.includes('same as')) {
+        setError('La nueva contraseña debe ser diferente a la anterior')
+      } else if (errorMessage.includes('session')) {
+        setError('Tu sesion ha expirado. Por favor solicita un nuevo enlace.')
+        setIsValidSession(false)
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -163,7 +172,7 @@ export default function NuevaPasswordPage() {
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Nueva Contraseña</CardTitle>
               <CardDescription>
-                Ingresa tu nueva contraseña
+                Ingresa tu nueva contraseña (minimo 6 caracteres)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -175,9 +184,14 @@ export default function NuevaPasswordPage() {
                       id="password"
                       type="password"
                       required
+                      minLength={6}
+                      placeholder="Minimo 6 caracteres"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      La contraseña debe tener al menos 6 caracteres
+                    </p>
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
