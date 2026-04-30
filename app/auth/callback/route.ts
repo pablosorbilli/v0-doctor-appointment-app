@@ -14,6 +14,10 @@ export async function GET(request: NextRequest) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      // Si es recovery (recuperar contraseña), redirigir a nueva-password
+      if (type === 'recovery') {
+        return NextResponse.redirect(`${origin}/auth/nueva-password`)
+      }
       // Si es verificacion de email (signup), redirigir a pagina de verificado
       if (type === 'signup' || type === 'email') {
         return NextResponse.redirect(`${origin}/auth/verificado`)
