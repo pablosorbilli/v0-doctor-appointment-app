@@ -23,6 +23,7 @@ const navItems = [
   { href: '/dashboard/tipos-consulta', label: 'Tipos de Consulta', icon: FileText },
   { href: '/dashboard/consentimientos', label: 'Consentimientos', icon: FileText },
   { href: '/dashboard/pagos', label: 'Pagos', icon: CreditCard },
+  { href: '/dashboard/link-compartir', label: 'Link para Compartir', icon: Link2 },
   { href: '/dashboard/configuracion', label: 'Configuración', icon: Settings },
 ]
 
