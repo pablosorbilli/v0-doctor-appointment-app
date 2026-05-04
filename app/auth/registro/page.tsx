@@ -21,7 +21,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Stethoscope } from 'lucide-react'
+import { Stethoscope, Eye, EyeOff } from 'lucide-react'
 import { MEDICAL_SPECIALTIES } from '@/lib/types/database'
 
 export default function RegistroPage() {
@@ -34,6 +34,8 @@ export default function RegistroPage() {
     specialty: '',
     licenseNumber: '',
   })
+  const [showPassword, setShowPassword] = useState(false)
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -175,24 +177,54 @@ export default function RegistroPage() {
 
                   <div className="grid gap-2">
                     <Label htmlFor="password">Contraseña</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={formData.password}
-                      onChange={(e) => handleChange('password', e.target.value)}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={formData.password}
+                        onChange={(e) => handleChange('password', e.target.value)}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid gap-2">
                     <Label htmlFor="repeatPassword">Repetir Contraseña</Label>
-                    <Input
-                      id="repeatPassword"
-                      type="password"
-                      required
-                      value={formData.repeatPassword}
-                      onChange={(e) => handleChange('repeatPassword', e.target.value)}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="repeatPassword"
+                        type={showRepeatPassword ? 'text' : 'password'}
+                        required
+                        value={formData.repeatPassword}
+                        onChange={(e) => handleChange('repeatPassword', e.target.value)}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
+                      >
+                        {showRepeatPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   {error && (
