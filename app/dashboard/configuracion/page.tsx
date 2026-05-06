@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProfileForm } from '@/components/dashboard/profile-form'
 import { MercadoPagoSettings } from '@/components/dashboard/mercadopago-settings'
-import { PublicLinkCard } from '@/components/dashboard/public-link-card'
 
 export default async function ConfiguracionPage() {
   const supabase = await createClient()
@@ -38,9 +37,6 @@ export default async function ConfiguracionPage() {
             <ProfileForm doctor={doctor} />
           </CardContent>
         </Card>
-
-        {/* Public Link */}
-        <PublicLinkCard slug={doctor.slug} />
 
         {/* Mercado Pago */}
         <MercadoPagoSettings />
