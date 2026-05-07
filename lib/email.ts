@@ -2,6 +2,10 @@ import { Resend } from 'resend'
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
+// Usa el dominio verificado en Resend o el dominio de testing de Resend
+// Para producción, configura EMAIL_FROM en tus variables de entorno (ej: "MediTurnos <notificaciones@tudominio.com>")
+const EMAIL_FROM = process.env.EMAIL_FROM || 'MediTurnos <onboarding@resend.dev>'
+
 interface AppointmentConfirmationData {
   patientName: string
   patientEmail: string
@@ -33,9 +37,9 @@ export async function sendAppointmentConfirmation(data: AppointmentConfirmationD
 
   try {
     const { error } = await resend.emails.send({
-      from: 'MediTurnos <notificaciones@mediturnos.app>',
+      from: EMAIL_FROM,
       to: data.patientEmail,
-      subject: `TURNO CONFIRMADO - Dr. ${data.doctorName} - ${data.date}`,
+      subject: `Turno Confirmado - Dr. ${data.doctorName} - ${data.date}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -156,9 +160,9 @@ export async function sendDoctorNotification(data: DoctorNotificationData) {
 
   try {
     const { error } = await resend.emails.send({
-      from: 'MediTurnos <notificaciones@mediturnos.app>',
+      from: EMAIL_FROM,
       to: data.doctorEmail,
-      subject: `NUEVO TURNO - ${data.patientName} - ${data.date} ${data.time} hs`,
+      subject: `Nuevo Turno - ${data.patientName} - ${data.date} ${data.time} hs`,
       html: `
         <!DOCTYPE html>
         <html>

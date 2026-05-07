@@ -120,8 +120,7 @@ export async function POST(request: NextRequest) {
 
     // Enviar email de confirmación al paciente
     try {
-      console.log('[v0] Attempting to send confirmation email to patient:', patientEmail)
-      const patientEmailResult = await sendAppointmentConfirmation({
+      await sendAppointmentConfirmation({
         patientName,
         patientEmail,
         doctorName: `${doctor?.first_name} ${doctor?.last_name}`,
@@ -131,11 +130,9 @@ export async function POST(request: NextRequest) {
         appointmentType: appointmentType?.name,
         address: doctor?.address,
       })
-      console.log('[v0] Patient email result:', patientEmailResult)
 
       // Enviar notificación al médico
-      console.log('[v0] Attempting to send notification to doctor:', doctor?.email)
-      const doctorEmailResult = await sendDoctorNotification({
+      await sendDoctorNotification({
         doctorEmail: doctor?.email || '',
         doctorName: `${doctor?.first_name} ${doctor?.last_name}`,
         patientName,
@@ -146,7 +143,6 @@ export async function POST(request: NextRequest) {
         appointmentType: appointmentType?.name,
         visitReason: visitReason || undefined,
       })
-      console.log('[v0] Doctor email result:', doctorEmailResult)
     } catch (emailError) {
       console.error('[v0] Error sending confirmation emails:', emailError)
       // No fallar la reserva si el email falla

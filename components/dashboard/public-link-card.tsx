@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Copy, Check, ExternalLink, Share2, MessageCircle } from 'lucide-react'
+import { Copy, Check, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
 interface PublicLinkCardProps {
@@ -38,33 +38,6 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
     }
   }
 
-  const shareLink = async () => {
-    const shareData = {
-      title: 'Reservar turno',
-      text: 'Reserva tu turno conmigo a través de este link:',
-      url: fullUrl,
-    }
-
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData)
-      } else {
-        // Fallback: copiar al portapapeles si no hay Web Share API
-        await copyToClipboard()
-      }
-    } catch (err) {
-      // Si el usuario cancela el share, no hacemos nada
-      if ((err as Error).name !== 'AbortError') {
-        await copyToClipboard()
-      }
-    }
-  }
-
-  const shareWhatsApp = () => {
-    const text = encodeURIComponent(`Reserva tu turno conmigo: ${fullUrl}`)
-    window.open(`https://wa.me/?text=${text}`, '_blank')
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -74,19 +47,13 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Input con link y boton copiar */}
         <div className="flex gap-2">
           <Input
             value={fullUrl}
             readOnly
             className="font-mono text-sm"
           />
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={copyToClipboard}
-            title="Copiar link"
-          >
+          <Button variant="outline" size="icon" onClick={copyToClipboard}>
             {copied ? (
               <Check className="h-4 w-4 text-green-600" />
             ) : (
@@ -94,31 +61,12 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
             )}
           </Button>
         </div>
-
-        {/* Botones de accion */}
-        <div className="grid grid-cols-2 gap-2">
-          <Button onClick={shareLink} className="w-full">
-            <Share2 className="mr-2 h-4 w-4" />
-            Compartir Link
-          </Button>
-          <Button variant="outline" onClick={shareWhatsApp} className="w-full">
-            <MessageCircle className="mr-2 h-4 w-4" />
-            WhatsApp
-          </Button>
-        </div>
-
-        {/* Enlace para ver pagina */}
-        <Button variant="ghost" className="w-full text-muted-foreground" asChild>
+        <Button variant="outline" className="w-full" asChild>
           <Link href={`/dr/${slug}`} target="_blank">
             <ExternalLink className="mr-2 h-4 w-4" />
-            Ver mi página pública
+            Ver página pública
           </Link>
         </Button>
-
-        {/* Mensaje informativo */}
-        <p className="text-xs text-muted-foreground text-center">
-          Tus pacientes podrán ver tu disponibilidad y reservar turnos directamente
-        </p>
       </CardContent>
     </Card>
   )
