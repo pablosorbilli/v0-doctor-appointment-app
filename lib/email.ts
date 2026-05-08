@@ -1,6 +1,12 @@
 import { Resend } from 'resend'
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+// Lazy initialization del cliente Resend para asegurar que lee la API key en runtime
+function getResendClient() {
+  if (!process.env.RESEND_API_KEY) {
+    return null
+  }
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 interface AppointmentConfirmationData {
   patientName: string
@@ -28,7 +34,9 @@ interface DoctorNotificationData {
 export async function sendAppointmentConfirmation(data: AppointmentConfirmationData) {
   console.log('[v0] sendAppointmentConfirmation called with:', JSON.stringify(data, null, 2))
   console.log('[v0] RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY)
-  console.log('[v0] resend client exists:', !!resend)
+  
+  const resend = getResendClient()
+  console.log('[v0] resend client created:', !!resend)
   
   if (!resend) {
     console.log('[Email] Resend not configured, skipping email')
@@ -142,10 +150,11 @@ export async function sendAppointmentConfirmation(data: AppointmentConfirmationD
     })
 
     if (error) {
-      console.error('[Email] Error sending confirmation:', error)
+      console.error('[v0] Error sending confirmation:', error)
       return { success: false, error: error.message }
     }
 
+    console.log('[v0] Email sent successfully! Response:', emailData)
     return { success: true }
   } catch (error) {
     console.error('[Email] Exception:', error)
@@ -154,6 +163,8 @@ export async function sendAppointmentConfirmation(data: AppointmentConfirmationD
 }
 
 export async function sendDoctorNotification(data: DoctorNotificationData) {
+  const resend = getResendClient()
+  
   if (!resend) {
     console.log('[Email] Resend not configured, skipping doctor notification')
     return { success: false, error: 'Resend not configured' }
