@@ -2,6 +2,17 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+  
+  // Rutas públicas que no necesitan verificar sesión
+  const publicRoutes = ['/dr/', '/api/appointments', '/booking/', '/api/webhooks/']
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  
+  // Para rutas públicas, simplemente continuar sin verificar auth
+  if (isPublicRoute) {
+    return NextResponse.next({ request })
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })

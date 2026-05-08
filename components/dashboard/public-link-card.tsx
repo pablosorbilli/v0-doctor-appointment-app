@@ -15,9 +15,10 @@ export function PublicLinkCard({ slug }: PublicLinkCardProps) {
   const [copied, setCopied] = useState(false)
   const [fullUrl, setFullUrl] = useState(`/dr/${slug}`)
   
-  // Actualizar la URL completa cuando el componente se monta en el cliente
+  // Usar NEXT_PUBLIC_APP_URL si está configurada, sino usar window.location.origin
   useEffect(() => {
-    setFullUrl(`${window.location.origin}/dr/${slug}`)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    setFullUrl(`${baseUrl}/dr/${slug}`)
   }, [slug])
 
   const copyToClipboard = async () => {
