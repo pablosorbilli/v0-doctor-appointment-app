@@ -33,7 +33,7 @@ export async function sendAppointmentConfirmation(data: AppointmentConfirmationD
 
   try {
     const { error } = await resend.emails.send({
-      from: 'MediTurnos <notificaciones@mediturnos.app>',
+      from: 'MediTurnos <onboarding@resend.dev>',
       to: data.patientEmail,
       subject: `TURNO CONFIRMADO - Dr. ${data.doctorName} - ${data.date}`,
       html: `
@@ -156,7 +156,7 @@ export async function sendDoctorNotification(data: DoctorNotificationData) {
 
   try {
     const { error } = await resend.emails.send({
-      from: 'MediTurnos <notificaciones@mediturnos.app>',
+      from: 'MediTurnos <onboarding@resend.dev>',
       to: data.doctorEmail,
       subject: `NUEVO TURNO - ${data.patientName} - ${data.date} ${data.time} hs`,
       html: `
