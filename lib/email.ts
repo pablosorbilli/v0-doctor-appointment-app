@@ -26,13 +26,18 @@ interface DoctorNotificationData {
 }
 
 export async function sendAppointmentConfirmation(data: AppointmentConfirmationData) {
+  console.log('[v0] sendAppointmentConfirmation called with:', JSON.stringify(data, null, 2))
+  console.log('[v0] RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY)
+  console.log('[v0] resend client exists:', !!resend)
+  
   if (!resend) {
     console.log('[Email] Resend not configured, skipping email')
     return { success: false, error: 'Resend not configured' }
   }
 
   try {
-    const { error } = await resend.emails.send({
+    console.log('[v0] Attempting to send email to:', data.patientEmail)
+    const { error, data: emailData } = await resend.emails.send({
       from: 'MediTurnos <onboarding@resend.dev>',
       to: data.patientEmail,
       subject: `TURNO CONFIRMADO - Dr. ${data.doctorName} - ${data.date}`,
