@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       patientPhone,
       patientDni,
       visitReason,
+      patientNotes,
       consentTemplateId,
       paymentAmount,
     } = body
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
         patient_phone: patientPhone || null,
         patient_dni: patientDni || null,
         visit_reason: visitReason || null,
+        notes: patientNotes || null,
         consent_template_id: consentTemplateId || null,
         consent_accepted_at: consentTemplateId ? new Date().toISOString() : null,
         consent_ip_address: consentTemplateId ? clientIp : null,
