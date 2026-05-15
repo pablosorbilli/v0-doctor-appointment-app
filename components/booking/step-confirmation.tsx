@@ -52,6 +52,7 @@ export function StepConfirmation({
           patientPhone: bookingData.patientPhone,
           patientDni: bookingData.patientDni,
           visitReason: bookingData.visitReason,
+          patientNotes: bookingData.patientNotes,
           consentTemplateId,
           paymentAmount: fee,
         }),
@@ -88,7 +89,7 @@ export function StepConfirmation({
             Tu turno ha sido creado exitosamente. Recibirás un email de confirmación.
           </p>
         </div>
-        <Button onClick={() => router.push(`/dr/${doctor.slug}`)}>
+        <Button onClick={() => window.location.href = `/dr/${doctor.slug}`}>
           Volver al inicio
         </Button>
       </div>
@@ -150,6 +151,11 @@ export function StepConfirmation({
           {bookingData.visitReason && (
             <div className="text-sm">
               <span className="font-medium">Motivo:</span> {bookingData.visitReason}
+            </div>
+          )}
+          {bookingData.patientNotes && (
+            <div className="text-sm">
+              <span className="font-medium">Notas:</span> {bookingData.patientNotes}
             </div>
           )}
         </div>

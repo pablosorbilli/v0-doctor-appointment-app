@@ -122,6 +122,11 @@ export default async function TurnosPage({ searchParams }: PageProps) {
                           <span className="font-medium">Motivo:</span> {appointment.visit_reason}
                         </div>
                       )}
+                      {appointment.notes && (
+                        <div className="mt-1 text-sm text-muted-foreground italic">
+                          <span className="font-medium not-italic">Notas del paciente:</span> {appointment.notes}
+                        </div>
+                      )}
                       <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Mail className="h-3 w-3" />

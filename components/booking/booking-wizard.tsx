@@ -31,6 +31,7 @@ export interface BookingData {
   patientPhone: string
   patientDni: string
   visitReason: string
+  patientNotes: string
   consentAccepted: boolean
 }
 
@@ -61,6 +62,7 @@ export function BookingWizard({
     patientPhone: '',
     patientDni: '',
     visitReason: '',
+    patientNotes: '',
     consentAccepted: false,
   })
 

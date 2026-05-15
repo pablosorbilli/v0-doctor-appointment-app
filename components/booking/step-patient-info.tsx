@@ -36,6 +36,7 @@ export function StepPatientInfo({ bookingData, onSubmit }: StepPatientInfoProps)
     patientPhone: bookingData.patientPhone,
     patientDni: bookingData.patientDni,
     visitReason: bookingData.visitReason,
+    patientNotes: bookingData.patientNotes || '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -144,6 +145,24 @@ export function StepPatientInfo({ bookingData, onSubmit }: StepPatientInfoProps)
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="patientNotes">Notas adicionales (opcional)</Label>
+          <Textarea
+            id="patientNotes"
+            value={formData.patientNotes}
+            onChange={(e) => {
+              if (e.target.value.length <= 150) {
+                setFormData({ ...formData, patientNotes: e.target.value })
+              }
+            }}
+            placeholder="Agrega cualquier aclaracion que quieras que el medico sepa antes de la consulta..."
+            rows={3}
+          />
+          <p className="text-xs text-muted-foreground text-right">
+            {formData.patientNotes.length}/150 caracteres
+          </p>
         </div>
       </div>
 
