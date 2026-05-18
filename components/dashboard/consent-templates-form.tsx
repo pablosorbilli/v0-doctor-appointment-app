@@ -18,8 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Pencil, Trash2, FileText, Star, Upload } from 'lucide-react'
+import { Plus, Pencil, Trash2, FileText, Star } from 'lucide-react'
 import type { ConsentTemplate } from '@/lib/types/database'
 
 interface ConsentTemplatesFormProps {
@@ -218,37 +217,32 @@ export function ConsentTemplatesForm({ templates }: ConsentTemplatesFormProps) {
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto pr-2">
-            <Tabs defaultValue="text" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="text">Texto</TabsTrigger>
-                <TabsTrigger value="file" disabled>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Archivo (pronto)
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="text" className="space-y-4 pt-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Nombre de la plantilla</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Ej: Consentimiento General"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="content">Contenido</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    placeholder="Escribe el texto del consentimiento informado..."
-                    className="min-h-[200px] max-h-[300px] resize-y"
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
+            <div className="space-y-4 pt-2">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Nombre de la plantilla</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Ej: Consentimiento General"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="content">Contenido</Label>
+                <Textarea
+                  id="content"
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  placeholder="Escribe el texto del consentimiento informado..."
+                  className="min-h-[200px] max-h-[300px] resize-y"
+                />
+              </div>
+            </div>
           </div>
+
+          <p className="text-xs text-muted-foreground py-2">
+            Copia y pega el texto de tu propio modelo de consentimiento informado en el campo de contenido.
+          </p>
 
           <div className="flex items-center gap-2 py-2 border-t">
             <Switch
