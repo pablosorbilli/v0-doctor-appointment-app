@@ -18,8 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Pencil, Trash2, FileText, Star, Upload } from 'lucide-react'
+import { Plus, Pencil, Trash2, FileText, Star } from 'lucide-react'
 import type { ConsentTemplate } from '@/lib/types/database'
 
 interface ConsentTemplatesFormProps {
@@ -207,7 +206,7 @@ export function ConsentTemplatesForm({ templates }: ConsentTemplatesFormProps) {
             Agregar Consentimiento
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {editingTemplate ? 'Editar Consentimiento' : 'Nuevo Consentimiento'}
@@ -217,15 +216,8 @@ export function ConsentTemplatesForm({ templates }: ConsentTemplatesFormProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue="text" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="text">Texto</TabsTrigger>
-              <TabsTrigger value="file" disabled>
-                <Upload className="mr-2 h-4 w-4" />
-                Archivo (pronto)
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="text" className="space-y-4 pt-4">
+          <div className="flex-1 overflow-y-auto pr-2">
+            <div className="space-y-4 pt-2">
               <div className="grid gap-2">
                 <Label htmlFor="name">Nombre de la plantilla</Label>
                 <Input
@@ -242,19 +234,24 @@ export function ConsentTemplatesForm({ templates }: ConsentTemplatesFormProps) {
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   placeholder="Escribe el texto del consentimiento informado..."
-                  rows={12}
+                  className="min-h-[200px] max-h-[300px] resize-y"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="default"
-                  checked={formData.isDefault}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isDefault: checked })}
-                />
-                <Label htmlFor="default">Usar como plantilla por defecto</Label>
-              </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground py-2">
+            Copia y pega el texto de tu propio modelo de consentimiento informado en el campo de contenido.
+          </p>
+
+          <div className="flex items-center gap-2 py-2 border-t">
+            <Switch
+              id="default"
+              checked={formData.isDefault}
+              onCheckedChange={(checked) => setFormData({ ...formData, isDefault: checked })}
+            />
+            <Label htmlFor="default">Usar como plantilla por defecto</Label>
+          </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
