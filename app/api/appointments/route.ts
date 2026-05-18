@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     // Obtener datos del médico para el email
     const { data: doctor } = await supabase
       .from('doctors')
-      .select('first_name, last_name, specialty, email, address')
+      .select('first_name, last_name, specialty, email, address, mercadopago_access_token')
       .eq('id', doctorId)
       .single()
 
@@ -151,10 +151,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Si hay monto a pagar, crear preferencia de Mercado Pago
-    if (paymentAmount > 0 && process.env.MERCADOPAGO_ACCESS_TOKEN) {
+    // Usamos el token del doctor si está conectado, sino el token global
+    const mpAccessToken = doctor?.mercadopago_access_token || process.env.MERCADOPAGO_ACCESS_TOKEN
+    
+    if (paymentAmount > 0 && mpAccessToken) {
       try {
         const client = new MercadoPagoConfig({
-          accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+          accessToken: mpAccessToken,
         })
 
         const preference = new Preference(client)
