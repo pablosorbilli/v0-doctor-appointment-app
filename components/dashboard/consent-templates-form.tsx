@@ -207,7 +207,7 @@ export function ConsentTemplatesForm({ templates }: ConsentTemplatesFormProps) {
             Agregar Consentimiento
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {editingTemplate ? 'Editar Consentimiento' : 'Nuevo Consentimiento'}
@@ -217,44 +217,47 @@ export function ConsentTemplatesForm({ templates }: ConsentTemplatesFormProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue="text" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="text">Texto</TabsTrigger>
-              <TabsTrigger value="file" disabled>
-                <Upload className="mr-2 h-4 w-4" />
-                Archivo (pronto)
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="text" className="space-y-4 pt-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Nombre de la plantilla</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Ej: Consentimiento General"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="content">Contenido</Label>
-                <Textarea
-                  id="content"
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  placeholder="Escribe el texto del consentimiento informado..."
-                  rows={12}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="default"
-                  checked={formData.isDefault}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isDefault: checked })}
-                />
-                <Label htmlFor="default">Usar como plantilla por defecto</Label>
-              </div>
-            </TabsContent>
-          </Tabs>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <Tabs defaultValue="text" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="text">Texto</TabsTrigger>
+                <TabsTrigger value="file" disabled>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Archivo (pronto)
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="text" className="space-y-4 pt-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Nombre de la plantilla</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Ej: Consentimiento General"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="content">Contenido</Label>
+                  <Textarea
+                    id="content"
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    placeholder="Escribe el texto del consentimiento informado..."
+                    className="min-h-[200px] max-h-[300px] resize-y"
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          <div className="flex items-center gap-2 py-2 border-t">
+            <Switch
+              id="default"
+              checked={formData.isDefault}
+              onCheckedChange={(checked) => setFormData({ ...formData, isDefault: checked })}
+            />
+            <Label htmlFor="default">Usar como plantilla por defecto</Label>
+          </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
