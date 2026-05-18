@@ -19,17 +19,69 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No payment ID' }, { status: 400 })
     }
 
-    // Obtener detalles del pago de Mercado Pago
-    if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+    const supabase = await createClient()
+
+    // Primero intentamos obtener el appointment para saber qué doctor es
+    // El external_reference puede venir en el body o necesitamos obtenerlo del pago
+    // Usamos el token global para la verificación inicial
+    const globalToken = process.env.MERCADOPAGO_ACCESS_TOKEN
+    if (!globalToken) {
       return NextResponse.json({ error: 'MercadoPago not configured' }, { status: 500 })
     }
 
     const client = new MercadoPagoConfig({
-      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+      accessToken: globalToken,
     })
 
     const payment = new Payment(client)
-    const paymentData = await payment.get({ id: paymentId })
+    let paymentData
+    
+    try {
+      paymentData = await payment.get({ id: paymentId })
+    } catch (mpError) {
+      // Si falla con el token global, puede que sea de un doctor específico
+      // En ese caso, necesitamos buscar el appointment primero
+      console.log('Payment not found with global token, trying to find doctor token...')
+      
+      // Intentamos buscar un payment pendiente con este ID
+      const { data: paymentRecord } = await supabase
+        .from('payments')
+        .select('appointment_id')
+        .eq('mercadopago_payment_id', paymentId.toString())
+        .single()
+      
+      if (!paymentRecord) {
+        // Si no existe, probablemente es un pago nuevo, retornamos ok y esperamos el siguiente webhook
+        return NextResponse.json({ received: true })
+      }
+      
+      // Obtener el doctor del appointment
+      const { data: appointment } = await supabase
+        .from('appointments')
+        .select('doctor_id')
+        .eq('id', paymentRecord.appointment_id)
+        .single()
+      
+      if (appointment) {
+        const { data: doctor } = await supabase
+          .from('doctors')
+          .select('mercadopago_access_token')
+          .eq('id', appointment.doctor_id)
+          .single()
+        
+        if (doctor?.mercadopago_access_token) {
+          const doctorClient = new MercadoPagoConfig({
+            accessToken: doctor.mercadopago_access_token,
+          })
+          const doctorPayment = new Payment(doctorClient)
+          paymentData = await doctorPayment.get({ id: paymentId })
+        }
+      }
+      
+      if (!paymentData) {
+        return NextResponse.json({ error: 'Could not fetch payment' }, { status: 500 })
+      }
+    }
 
     const externalReference = paymentData.external_reference
     const status = paymentData.status
@@ -38,8 +90,6 @@ export async function POST(request: NextRequest) {
     if (!externalReference) {
       return NextResponse.json({ error: 'No external reference' }, { status: 400 })
     }
-
-    const supabase = await createClient()
 
     // Mapear estado de MercadoPago a nuestro sistema
     let paymentStatus: string
