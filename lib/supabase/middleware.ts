@@ -5,8 +5,23 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   
   // Rutas públicas que no necesitan verificar sesión
-  const publicRoutes = ['/dr/', '/api/appointments', '/booking/', '/api/webhooks/']
+  const publicRoutes = ['/dr/', '/api/appointments', '/booking/', '/api/webhooks/', '/auth/']
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  
+  // Verificar que las variables de entorno estén configuradas
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  // Si las variables no están configuradas, permitir acceso solo a rutas públicas
+  if (!supabaseUrl || !supabaseAnonKey) {
+    if (isPublicRoute || pathname === '/') {
+      return NextResponse.next({ request })
+    }
+    // Redirigir a home si intenta acceder a rutas protegidas sin config
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
+  }
   
   // Para rutas públicas, simplemente continuar sin verificar auth
   if (isPublicRoute) {
@@ -18,8 +33,8 @@ export async function updateSession(request: NextRequest) {
   })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
