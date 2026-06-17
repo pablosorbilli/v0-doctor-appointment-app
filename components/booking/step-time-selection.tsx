@@ -31,12 +31,13 @@ export function StepTimeSelection({
       setIsLoading(true)
       const supabase = createClient()
       
+      // TODO: Reactivar pending_payment cuando esté listo el flujo de pagos
       const { data: appointments } = await supabase
         .from('appointments')
         .select('start_time, end_time')
         .eq('doctor_id', doctorId)
         .eq('date', selectedDate)
-        .in('status', ['confirmed', 'pending_payment'])
+        .in('status', ['confirmed'])
 
       const booked = appointments?.map((a) => a.start_time) || []
       setBookedSlots(booked)

@@ -44,13 +44,14 @@ export async function POST(request: NextRequest) {
     const supabase = createAnonClient()
 
     // Verificar que el slot no esté ocupado
+    // TODO: Reactivar pending_payment cuando esté listo el flujo de pagos
     const { data: existingAppointment } = await supabase
       .from('appointments')
       .select('id')
       .eq('doctor_id', doctorId)
       .eq('date', date)
       .eq('start_time', startTime)
-      .in('status', ['confirmed', 'pending_payment'])
+      .in('status', ['confirmed'])
       .single()
 
     if (existingAppointment) {
@@ -83,8 +84,11 @@ export async function POST(request: NextRequest) {
         consent_template_id: consentTemplateId || null,
         consent_accepted_at: consentTemplateId ? new Date().toISOString() : null,
         consent_ip_address: consentTemplateId ? clientIp : null,
-        status: paymentAmount > 0 ? 'pending_payment' : 'confirmed',
-        payment_status: paymentAmount > 0 ? 'pending' : 'paid',
+        // TODO: Reactivar restricción de pago cuando esté listo
+        // status: paymentAmount > 0 ? 'pending_payment' : 'confirmed',
+        // payment_status: paymentAmount > 0 ? 'pending' : 'paid',
+        status: 'confirmed',
+        payment_status: 'pending',
         payment_amount: paymentAmount || 0,
       })
       .select()
